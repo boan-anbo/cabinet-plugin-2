@@ -1,0 +1,25 @@
+<div class="bg-gray-50 drop-shadow rounded-xl px-4 py-4 space-y-4">
+  <div class="flex space-x-4 ">
+    <div>
+      <fa-icon [icon]="faNoteSticky"></fa-icon>
+    </div>
+    <div class="font-bold">
+      {{card.title}}
+    </div>
+  </div>
+  <div>
+    <app-card-source [source]="card.source"></app-card-source>
+  </div>
+
+  <div class="flex space-x-4">
+
+    <div>
+      <fa-icon class="text-pink-600" [icon]="faHighlighter"></fa-icon>
+    </div>
+    <div>
+      <span class="bg-yellow-300">
+      {{card.text}}
+        </span>
+    </div>
+  </div>
+</div>
