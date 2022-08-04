@@ -1,0 +1,20 @@
+<div class="flex space-x-2 bg-amber-200 h-full overflow-y-hidden">
+
+
+  <div class="w-9/12 overflow-y-scroll">
+
+    <div class="bg-blue-400">
+      Current Document Uri: {{this.vsCodeState.currentDocumentUri | async}}
+    </div>
+
+    Test Message: {{this.preview.testMessage | async }}
+    <div *ngFor="let markdownPoint of this.preview.testInput; let pointIndex = index">
+      <app-markdown-point [id]="pointIndex" [point]="markdownPoint"></app-markdown-point>
+    </div>
+
+  </div>
+  <div class="w-3/12 h-full overflow-y-scroll">
+    <app-preview-nav [points]="this.preview.testInput"></app-preview-nav>
+  </div>
+</div>
+<!--<pre>{{this.preview.testInput | json}}</pre>-->

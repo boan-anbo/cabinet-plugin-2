@@ -1,0 +1,397 @@
+{
+  "name": "hello-world-angular",
+  "displayName": "cabinet-plugin",
+  "description": "Cabinet Plugin",
+  "version": "0.0.0",
+  "engines": {
+    "vscode": "^1.46.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boan-anbo/cabinetplugin.git"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cabinetContainer",
+          "title": "Cabinet",
+          "icon": "resources/light/refresh.svg"
+        },
+        {
+          "id": "writing-plan",
+          "title": "Writing Plan",
+          "icon": "media/writing-plan.svg"
+        }
+      ]
+    },
+    "views": {
+      "writing-plan": [
+        {
+          "id": "writing-outline",
+          "name": "Writing Plan Outline"
+        }
+      ],
+      "explorer": [
+        {
+          "id": "cabinetOutline",
+          "name": "Cabinet Outline",
+          "icon": "media/dep.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "writing-plan.outline.moveSectionUp",
+          "group": "inline"
+        },
+        {
+          "command": "writing-plan.outline.moveSectionDown",
+          "group": "inline"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "cabinetOutline.refresh",
+          "when": "view == cabinetOutline",
+          "group": "navigation"
+        },
+        {
+          "command": "writing-plan.outline.showCards",
+          "when": "view == writing-outline && !config.cabinetplugin.writing-plan.outline.showCards",
+          "group": "navigation"
+        },
+        {
+          "command": "writing-plan.outline.hideCards",
+          "when": "view == writing-outline && config.cabinetplugin.writing-plan.outline.showCards",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceLangId == markdown || resourceLangId == latex",
+          "command": "cabinetplugin.showPreview",
+          "alt": "cabinetplugin.showPreview",
+          "group": "navigation"
+        },
+        {
+          "command": "cabinetplugin.togglePreviewSync",
+          "alt": "cabinetplugin.togglePreviewSync",
+          "group": "navigation"
+        },
+        {
+          "when": "(resourceLangId == markdown || resourceLangId == latex) && editorFocus",
+          "command": "cabinetplugin.updateUsedCardsInPreview",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "cabinetplugin.extractPdfCards",
+        "key": "ctrl+alt+shift+e",
+        "mac": ""
+      },
+      {
+        "command": "cabinetplugin.cabinetActions",
+        "key": "ctrl+alt+shift+c",
+        "mac": ""
+      },
+      {
+        "command": "cabinetplugin.zoteroActions",
+        "key": "ctrl+alt+shift+z",
+        "mac": ""
+      },
+      {
+        "command": "cabinetplugin.disseratorActions",
+        "key": "ctrl+alt+shift+d",
+        "mac": ""
+      }
+    ],
+    "commands": [
+      {
+        "command": "writing-plan.showHelloWorld",
+        "title": "Hello World (Angular): Show",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.test",
+        "title": "Test Writing Plan",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.refresh-preview",
+        "title": "Refresh Preview",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.processor.replaceMarkdownNotes",
+        "title": "Replace Markdown Notes",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.outline.hideCards",
+        "title": "Hide Cards",
+        "icon": {
+          "light": "media/card-item.svg",
+          "dark": "media/card-item.svg"
+        }
+      },
+      {
+        "command": "writing-plan.outline.showCards",
+        "title": "Show Cards",
+        "icon": {
+          "light": "media/card-item-dim.svg",
+          "dark": "media/card-item-dim.svg"
+        }
+      },
+      {
+        "command": "writing-plan.commentAllSectionMarkers",
+        "title": "Comment All Section Markers",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.uncommentAllSectionMarkers",
+        "title": "Uncomment All Section Markers",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "cabinetplugin.startCabinet",
+        "title": "Start",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.testDisserator",
+        "title": "testDisserator",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.disseratorActions",
+        "title": "Disserator Actions",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.cabinetActions",
+        "title": "Cabinet Actions",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.zoteroActions",
+        "title": "Zotero Actions",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.extractPdfCards",
+        "title": "Cards Actions",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.updateUsedCardsInPreview",
+        "title": "[C] Preview Used Cards",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetOutline.goToLine",
+        "title": "Go to Line"
+      },
+      {
+        "command": "cabinetOutline.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "cabinetplugin.stopCabinet",
+        "title": "Stop",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.exportCsv",
+        "title": "Export CSV",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.showPreview",
+        "title": "[C] Preview",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.togglePreviewSync",
+        "title": "[C] Sync Preview",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.outputPreviewHtml",
+        "title": "Output Preview Html",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.fetchCardsFromApi",
+        "title": "Fetch Cards in the Document From API",
+        "category": "Cabinet"
+      },
+      {
+        "command": "cabinetplugin.searchCards",
+        "title": "Search Cards",
+        "category": "Cabinet"
+      },
+      {
+        "title": "Enable CodeLens",
+        "command": "cabinetplugin.enableCodeLens",
+        "category": "Cabinet"
+      },
+      {
+        "title": "Disable Codelens",
+        "command": "cabinetplugin.disableCodeLens",
+        "category": "Cabinet"
+      },
+      {
+        "command": "writing-plan.outline.moveSectionDown",
+        "title": "Move Section Down",
+        "category": "Writing Plan",
+        "icon": {
+          "light": "media/section-down.svg",
+          "dark": "media/section-down.svg"
+        }
+      },
+      {
+        "command": "writing-plan.copySkeleton",
+        "title": "Copy Skeleton",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.writeSkeleton",
+        "title": "Write Skeleton Into New File",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "writing-plan.outline.moveSectionUp",
+        "title": "Move Section Up",
+        "category": "Writing Plan",
+        "icon": {
+          "light": "media/section-up.svg",
+          "dark": "media/section-up.svg"
+        }
+      },
+      {
+        "command": "cabinetplugin.writing-plan.outline.refresh",
+        "title": "Refresh Outline",
+        "category": "Writing Plan"
+      },
+      {
+        "command": "cabinetplugin.writing-plan.toggle",
+        "title": "Toggle Writing Plan",
+        "category": "Writing Plan"
+      }
+    ],
+    "configuration": {
+      "title": "Cabinet",
+      "properties": {
+        "cabinetplugin.writing-plan.outline.showCards": {
+          "description": "Show Cards on Writing Plan Outline",
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.writing-plan.enable": {
+          "type": "boolean",
+          "description": "Enable Writing Plan",
+          "default": true
+        },
+        "cabinetplugin.writing-plan.enableCodeLens": {
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.enableCodeLens": {
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.collapsablePreview": {
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.previewInBlockquote": {
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.syncPreviewWithEditor": {
+          "type": "boolean",
+          "default": true
+        },
+        "cabinetplugin.pdfFolders": {
+          "type": "array",
+          "title": "PDF Folders to Choose From",
+          "default": [
+            "/Users/boan/Dropbox/NEra/New_Core_Reading"
+          ]
+        },
+        "cabinetplugin.pdfReaders.windows.executable": {
+          "type": "string",
+          "title": "Reader to open pdf files on Windows",
+          "default": ""
+        },
+        "cabinetplugin.pdfReaders.windows.args": {
+          "type": "array",
+          "title": "Arguments for Reader to open pdf files on Windows",
+          "default": []
+        },
+        "cabinetplugin.pdfReaders.windows.argForPage": {
+          "type": "string",
+          "title": "Arguments for reader to open pdf at specific page on Windows",
+          "default": ""
+        },
+        "cabinetplugin.pdfReaders.mac.executable": {
+          "type": "string",
+          "title": "Reader to open pdf files on Apple Computers",
+          "default": ""
+        },
+        "cabinetplugin.pdfReaders.mac.argForPage": {
+          "type": "string",
+          "title": "Arguments for Reader to open pdf files on Apple Computers",
+          "default": ""
+        }
+      }
+    }
+  },
+  "scripts": {
+    "install:all": "npm install && npm --prefix ./webview-ui install ./webview-ui",
+    "start:webview": "npm --prefix ./webview-ui run start",
+    "build:webview": "npm --prefix ./webview-ui run build",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "recompile": "npm link cabinet-node writing-plan wikijs-processor"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/node": "^12.20.55",
+    "@types/vscode": "^1.46.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "axios": "^0.26.1",
+    "body-parser": "^1.19.1",
+    "cors": "^2.8.5",
+    "eslint": "^7.19.0",
+    "express": "^4.17.2",
+    "follow-redirects": "^1.14.6",
+    "glob": "^7.1.6",
+    "markdown-it": "^12.3.0",
+    "path-browserify": "^1.0.1",
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.3",
+    "uuid": "^8.3.2",
+    "vscode-test": "^1.5.0",
+    "writing-plans": "^0.0.3"
+  }
+}

@@ -1,0 +1,31 @@
+<div class="bg-primary-color  h-full py-4">
+
+  <div *ngFor="let point of points; let pointIndex=index">
+
+    <div class="flex
+   space-x-2
+   space-y-4
+   px-2
+   text-xs
+   truncate
+   items-baseline
+
+">
+
+      <div class="w-2">
+        {{point.line}}
+      </div>
+      <div class="">
+
+        <button class="text-xs"
+                [ngxScrollTo]="pointIndex"
+                [ngxScrollToOffset]="200"
+                (click)="onClickHeader()"
+                mat-button>
+          {{ point.content}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
