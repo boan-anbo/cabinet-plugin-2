@@ -1,0 +1,7 @@
+<div>
+  <div
+  *ngFor="let comment of comments; let commentIndex = index"
+  >
+    <app-comment [comment]="comment"></app-comment>
+  </div>
+</div>

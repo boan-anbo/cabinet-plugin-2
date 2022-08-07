@@ -1,0 +1,31 @@
+<div *ngIf="this.source">
+  <div class="flex space-x-4">
+    <div class="icon">
+
+      <fa-icon [icon]="faInfo"></fa-icon>
+    </div>
+    <div>
+      {{this.source.pageIndex + 1}}
+    </div>
+    <div>
+      {{this.source.title}}
+    </div>
+    <div>
+      <button
+        mat-mini-fab
+        class="full-text"
+
+
+        (click)="this.showSourceFullText = !this.showSourceFullText"
+      >
+        test
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="this.showSourceFullText" class="flex justify-center">
+        <pre class="text-xs text-left rounded-2xl border-2 p-4">
+    {{this.source.text}} </pre>
+  </div>
+</div>
+

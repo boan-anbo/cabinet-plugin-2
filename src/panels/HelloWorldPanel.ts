@@ -268,7 +268,7 @@ export class HelloWorldPanel {
 
         this.postMessageToWebview({
             command: CabinetCommandToWebView.test,
-            contentType: CabinetContentType.payload,
+            contentTypes: CabinetContentType.payload,
             payload: "haha"
         });
     }
@@ -282,7 +282,7 @@ export class HelloWorldPanel {
         console.log("preview", markdownPoints);
         this.postMessageToWebview({
             command: CabinetCommandToVsCode.preview,
-            contentType: CabinetContentType.payload,
+            contentTypes: CabinetContentType.payload,
             payload: markdownPoints
         });
     }
@@ -295,7 +295,7 @@ export class HelloWorldPanel {
         if (activeEditor) {
             const documentUri = activeEditor.document.uri.toString();
             console.log('Heard Document URI request, sending back uri', documentUri);
-            this.postMessageToWebview({ command: CabinetCommandToWebView.setDocumentUri, contentType: CabinetContentType.uri, payload: {
+            this.postMessageToWebview({ command: CabinetCommandToWebView.setDocumentUri, contentTypes: CabinetContentType.uri, payload: {
                 uri: documentUri
             }
             });
