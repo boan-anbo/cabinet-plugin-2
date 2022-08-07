@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {LineType, MarkdownPoint} from "cabinet-node";
+import {faBullseye} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-markdown-point',
@@ -8,6 +9,7 @@ import {LineType, MarkdownPoint} from "cabinet-node";
 })
 export class MarkdownPointComponent implements OnInit {
 
+  faIdea = faBullseye
   // @ts-ignore
   @Input() point: MarkdownPoint;
 

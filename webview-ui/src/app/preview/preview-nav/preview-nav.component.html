@@ -1,29 +1,40 @@
-<div class="bg-primary-color  h-full py-4">
+<div
+  class="bg-pink-400 text-black rounded-l-2xl pl-4 pr-4 truncate  drop-shadow-lg py-4">
 
   <div *ngFor="let point of points; let pointIndex=index">
 
-    <div class="flex
-   space-x-2
-   space-y-4
-   px-2
+
+    <div
+
+      [ngClass]="{' border-t-2 border-t-gray-50 mt-2': isHeading(point)  }"
+      class="flex
+    text-left
+   space-y-2
    text-xs
    truncate
    items-baseline
 
 ">
 
-      <div class="w-2">
+      <div class="w-1/12 text-gray-600 drop-shadow">
         {{point.line}}
       </div>
-      <div class="">
-
-        <button class="text-xs"
-                [ngxScrollTo]="pointIndex"
-                [ngxScrollToOffset]="200"
-                (click)="onClickHeader()"
-                mat-button>
-          {{ point.content}}
-        </button>
+      <div [ngClass]="{ 'font-bold underline': isHeading(point), 'pl-3': isLevelTwo(point), 'pl-4': isLevelThree(point),
+      'pl-5': isLevelFour(point)  }"
+           class="w-11/12">
+        <a class="text-xs hover:underline hover:cursor-pointer flex"
+           [ngxScrollTo]="pointIndex"
+           [ngxScrollToOffset]="-100"
+           (click)="onClickHeader()"
+        >
+          <div *ngIf="isHeading(point)" class="no-underline mr-2">
+            {{point.headerLevel ?? ''}}
+          </div>
+<!--          TODO I have added parent point to markdown point entity, here the point could use parent point to get correct indentation-->
+          <div>
+            {{ point.content}}
+          </div>
+        </a>
       </div>
     </div>
   </div>

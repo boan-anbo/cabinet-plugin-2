@@ -15,6 +15,8 @@ export enum CabinetCommandToVsCode {
 export enum CabinetCommandToWebView {
     setDocumentUri = "setDocumentUri",
     test = "test",
+    updateUsedCards = "updateUsedCards",
+    goToLine = "goToLine"
 }
 
 /**
@@ -31,7 +33,7 @@ export enum CabinetContentType {
 
 export class CabinetMessageToVsCode<T> {
     command: CabinetCommandToVsCode;
-    contentType: CabinetContentType = CabinetContentType.none;
+    contentTypes: CabinetContentType[] = [];
     payload?: T;
     text?: string;
     lineNumber?: number;
@@ -61,7 +63,7 @@ export class CabinetMessageToVsCode<T> {
 
 export class CabinetMessageToWebView<T> {
     command: CabinetCommandToWebView;
-    contentType: CabinetContentType = CabinetContentType.none;
+    contentTypes: CabinetContentType[] = [];
     payload?: T;
     text?: string;
     lineNumber?: number;
@@ -89,3 +91,13 @@ export class CabinetMessageToWebView<T> {
     }
 }
 
+import { Card } from "cabinet-node";
+
+export interface CardPlace {
+    card?: Card;
+    id: string;
+    line: number;
+    column: number;
+    lineText: string;
+    documentUri: string;
+}

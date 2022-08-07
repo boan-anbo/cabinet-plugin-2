@@ -3,9 +3,13 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  height: 100%;
+  height: 100vh;
 }
 
 main > * {
   margin: 1rem 0;
+}
+
+.icon {
+  color: #bb1515 !important;
 }

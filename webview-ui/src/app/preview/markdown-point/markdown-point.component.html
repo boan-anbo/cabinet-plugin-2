@@ -1,10 +1,9 @@
-<div>
-
+<div class="m-4 px-4 space-y-4">
   <div>
-    {{point.content}}
+    <app-line-content [point]="point"></app-line-content>
   </div>
 
-<!--  Cards-->
+  <!--  Cards-->
   <div>
     <div *ngFor="let cardEntry of point.cards">
       <app-card-entry [card]="cardEntry[1]"></app-card-entry>
