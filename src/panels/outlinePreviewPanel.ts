@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import {Disposable, Uri, ViewColumn, Webview, WebviewPanel, window} from "vscode";
-import {getUri} from "../utilities/getUri";
+import { Disposable, Uri, ViewColumn, Webview, WebviewPanel, window } from "vscode";
+import { getUri } from "../utilities/getUri";
 import {
     CabinetCommandToVsCode,
     CabinetCommandToWebView,
@@ -8,16 +8,17 @@ import {
     CabinetMessageToVsCode,
     CabinetMessageToWebView
 } from "../shared-types";
-import {CabinetCardIdentifier, MarkdownPoint} from "cabinet-node";
-import {cabinetPreviewPanel, freezePreviewSync, updateUsedCardsInPreview} from "../cabinet-core/webviews/preview-panel";
-import {insertText} from "../cabinet-core/utils/insert-text";
-import {InsertOption} from "../cabinet-core/types/insert-option";
-import {openCardSourceFile} from "../cabinet-core/utils/open-source-file";
-import {goToLine} from "../cabinet-core/commands/go-to-line-command";
-import {cabinetNodeInstance} from "../extension";
-import {writingPlanInstance} from "../writing-plan/writing-plan-instance";
-import {highlightLines} from "../writing-plan/decorators/line-highlighter";
-import {highlightLine} from "../cabinet-core/utils/highlight-line";
+import { CabinetCardIdentifier, MarkdownPoint, MoveInstruction } from "cabinet-node";
+import { cabinetPreviewPanel, freezePreviewSync, updateUsedCardsInPreview } from "../cabinet-core/webviews/preview-panel";
+import { insertText } from "../cabinet-core/utils/insert-text";
+import { InsertOption } from "../cabinet-core/types/insert-option";
+import { openCardSourceFile } from "../cabinet-core/utils/open-source-file";
+import { goToLine } from "../cabinet-core/commands/go-to-line-command";
+import { cabinetNodeInstance } from "../extension";
+import { writingPlanInstance } from "../writing-plan/writing-plan-instance";
+import { highlightLine } from "../cabinet-core/utils/highlight-line";
+import { movePointsInText } from "../cabinet-core/utils/move-points-in-text";
+import { provideMarkdownPoints } from "./panel-commands-to-webview/provide-markdownpoints";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -29,8 +30,8 @@ import {highlightLine} from "../cabinet-core/utils/highlight-line";
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class PreviewPanel {
-    public static currentPanel: PreviewPanel | undefined;
+export class OutlinePreviewPanel {
+    public static currentPanel: OutlinePreviewPanel | undefined;
     private readonly _panel: WebviewPanel;
     private _disposables: Disposable[] = [];
 
@@ -61,9 +62,9 @@ export class PreviewPanel {
      * @param extensionUri The URI of the directory containing the extension.
      */
     public static render(extensionUri: Uri) {
-        if (PreviewPanel.currentPanel) {
+        if (OutlinePreviewPanel.currentPanel) {
             // If the webview panel already exists reveal it
-            PreviewPanel.currentPanel._panel.reveal(ViewColumn.One);
+            OutlinePreviewPanel.currentPanel._panel.reveal(ViewColumn.One);
         } else {
             // If a webview panel does not already exist create and show a new one
             const panel = window.createWebviewPanel(
@@ -81,9 +82,9 @@ export class PreviewPanel {
                 }
             );
 
-            PreviewPanel.currentPanel = new PreviewPanel(panel, extensionUri);
+            OutlinePreviewPanel.currentPanel = new OutlinePreviewPanel(panel, extensionUri);
 
-            return PreviewPanel.currentPanel;
+            return OutlinePreviewPanel.currentPanel;
 
         }
     }
@@ -92,7 +93,7 @@ export class PreviewPanel {
      * Cleans up and disposes of webview resources when the webview panel is closed.
      */
     public dispose() {
-        PreviewPanel.currentPanel = undefined;
+        OutlinePreviewPanel.currentPanel = undefined;
 
         // Dispose of the current webview panel
         this._panel.dispose();
@@ -155,7 +156,7 @@ export class PreviewPanel {
     private _setWebviewMessageListener(webview: Webview) {
         webview.onDidReceiveMessage(
             async (message: CabinetMessageToVsCode<any>) => {
-                console.log(`VsCode Received message from Webview: ${message.command}`, {message});
+                console.log(`VsCode Received message from Webview: ${message.command}`, { message });
 
                 const command = message.command;
                 const text = message.text;
@@ -177,7 +178,7 @@ export class PreviewPanel {
                 }
 
                 switch (command) {
-                    case 'updateUsedCardsInPreview':
+                    case CabinetCommandToVsCode.updateUsedCardsInPreview:
                         // if no active editor, use the last used editor.
                         if (!vscode.window.activeTextEditor) {
                             await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
@@ -197,10 +198,10 @@ export class PreviewPanel {
                         vscode.window.showInformationMessage("Card Inserted");
                         updateUsedCardsInPreview();
                         return;
-                    case 'addPoint':
+                    case CabinetCommandToVsCode.addPoint:
                         // refocus last active editor
                         await insertText(
-                            `- ${message.text}`
+                            `${message.text}`
 
                             , {
                                 linesBefore: 1,
@@ -218,7 +219,7 @@ export class PreviewPanel {
                         return;
                     case 'jumpToLineByCard':
                         // const {line, documentUri} = JSON.parse(message.cardPlace) as CardPlace;
-                        const {lineNumber, uri} = message;
+                        const { lineNumber, uri } = message;
                         if (lineNumber && uri) {
                             goToLine(lineNumber, uri);
                             return;
@@ -238,15 +239,19 @@ export class PreviewPanel {
                     case 'requestDocumentUri':
                         const activeEditor = vscode.window.activeTextEditor;
                         if (activeEditor) {
-                            const documentUri = activeEditor.document.uri.toString();
-                            cabinetPreviewPanel?.webview.postMessage({command: 'setDocumentUri', documentUri});
+                            const documentUri = activeEditor.document.uri;
+                            cabinetPreviewPanel?.webview.postMessage({ command: 'setDocumentUri', documentUri });
                             console.log('Heard Document URI request, sending back uri', documentUri);
                         }
                         return;
                     case CabinetCommandToVsCode.requestCurrentMarkdown:
-                        await this.provideMarkdownPoints();
+                        // await provideMarkdownPoints();
                         return;
                     case 'insertLatex':
+                        if (!message.text) {
+                            vscode.window.showErrorMessage("Cannot insert Latex, no text provided");
+                            return;
+                        }
                         const cci = CabinetCardIdentifier.fromJsonString(message.text);
                         if (!cci) {
                             return;
@@ -272,6 +277,14 @@ export class PreviewPanel {
 
                         window.showInformationMessage('I Received:' + text);
                         return;
+                    case CabinetCommandToVsCode.movePoints:
+                        const moveInstruction = message.payload as MoveInstruction;
+                        if (message.uri) {
+                            if (moveInstruction) {
+                                // convert string uri to Uri object
+                                await movePointsInText(moveInstruction, vscode.Uri.parse(message.uri));
+                            }
+                        }
 
                 }
             },
@@ -287,7 +300,7 @@ export class PreviewPanel {
     public postMessageToWebview<T>(message: CabinetMessageToWebView<T>) {
         console.log("postMessageToWebview", message);
         // check the completeness of the message's content
-        const missingContent: CabinetContentType [] = message.contentTypes.filter(contentType => {
+        const missingContent: CabinetContentType[] = message.contentTypes.filter(contentType => {
 
             if (contentType === CabinetContentType.payload) {
                 if (!message.payload) {
@@ -383,43 +396,5 @@ export class PreviewPanel {
         });
     }
 
-    /**
-     * Provide the parsed markdown points from the current editor's document to the webview
-     */
-    provideMarkdownPoints = async () => {
 
-        if (!cabinetNodeInstance) {
-            throw new Error("CabinetNodeInstance is not initialized");
-        }
-
-        // active editor
-        // await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
-
-        const activeEditor = vscode.window.activeTextEditor;
-        if (!activeEditor) {
-            vscode.window.showErrorMessage("No active editor");
-        }
-        let documentText = activeEditor.document.getText();
-        // check if writing plan is enabled
-        const plan = writingPlanInstance.getCurrentPlan();
-        if (plan) {
-            documentText = plan.outPutMarkdown();
-        }
-        const markdownPoints: MarkdownPoint[] = cabinetNodeInstance.parseMdStructure(documentText);
-
-        const documentUri = activeEditor.document.uri.toString();
-
-        this.postMessageToWebview(
-            {
-                command: CabinetCommandToWebView.provideCurrentMarkdownPoints,
-                contentTypes: [
-                    CabinetContentType.payload,
-                    CabinetContentType.uri,
-                ],
-                uri: documentUri,
-                payload: markdownPoints,
-            }
-        )
-
-    }
 }

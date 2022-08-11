@@ -49,6 +49,7 @@ export class PreviewNavComponent implements OnInit, OnDestroy {
         if (!this.previewNav.allowNavToScrollWithPreview) {
           return
         }
+
         // sort lines by string
         const linesArray = Array.from(lines)
         linesArray.sort()
@@ -56,11 +57,18 @@ export class PreviewNavComponent implements OnInit, OnDestroy {
         // get first line in set use destructuring to get the first element
         const firstLine = linesArray[0]
         if (firstLine) {
-          const firstLineId = 'nav-' + firstLine;
-          // check if the preview nav entry is already in the view port, if so, do nothing
-          if (!this.isPreviewNavLineInViewPort(firstLineId)) {
-            this.scroll.scrollToId(firstLineId, -300)
+
+          // if mouse is current over a nav line, stop the attempt to scroll the preview nav according to preview positions, otherwise there will be looping preventing scrolling down the preview nav panel
+          if (this.preview.mouseOverNavLine.getValue() !== null) {
+            return
           }
+
+          const firstNavLineId = 'nav-' + firstLine;
+          // check if the preview nav entry is already in the view port, if so, do nothing
+          if (!this.isPreviewNavLineInViewPort(firstNavLineId)) {
+            this.scroll.scrollToId(firstNavLineId, -300)
+          }
+
         }
       }
     )
@@ -76,6 +84,7 @@ export class PreviewNavComponent implements OnInit, OnDestroy {
     this.mouseOverNavLineSubscription = this.preview.mouseOverNavLine.subscribe(line => {
       // if no line, scroll back to the selected point
       if (!line) {
+
       }
       if (this.previewState.autoScrollToMouseOverNavLine) {
         this.scroll.scrollToId('line-' + line, -300)
@@ -189,7 +198,6 @@ export class PreviewNavComponent implements OnInit, OnDestroy {
 
   onMouseLeaveNav() {
     this.preview.mouseOverNavLine.next(null)
-
     this.scrollBackToSelected();
   }
 

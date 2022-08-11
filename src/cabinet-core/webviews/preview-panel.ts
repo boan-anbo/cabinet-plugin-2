@@ -1,18 +1,16 @@
-import { CabinetCardIdentifier, CabinetNode, Card } from 'cabinet-node';
+import {CabinetCardIdentifier, CabinetNode, MarkdownOption} from 'cabinet-node';
 import * as vscode from 'vscode';
-import { MarkdownOption } from 'cabinet-node';
-import { getPreviewHtmlTemplate } from '../utils/get-preview-html-template';
-import { text } from 'body-parser';
-import { insertText } from '../utils/insert-text';
-import { InsertOption } from '../types/insert-option';
-import { openCardSourceFile } from '../utils/open-source-file';
-import { getAllCardPlaces, getCurrentlyUsedCards } from '../utils/get-current_cards';
-import { goToLine } from '../commands/go-to-line-command';
-import { CardPlace } from '../types/card-place';
-import { cabinetNodeInstance } from '../../extension';
-import { writingPlanInstance } from '../../writing-plan/writing-plan-instance';
-import { WritingPlan } from 'writing-plan';
-import { setWebViewDocumentUri } from '../../panels/panel-utils.ts/set-document';
+import {getPreviewHtmlTemplate} from '../utils/get-preview-html-template';
+import {insertText} from '../utils/insert-text';
+import {InsertOption} from '../types/insert-option';
+import {openCardSourceFile} from '../utils/open-source-file';
+import {getAllCardPlaces} from '../utils/get-current_cards';
+import {goToLine} from '../commands/go-to-line-command';
+import {cabinetNodeInstance} from '../../extension';
+import {writingPlanInstance} from '../../writing-plan/writing-plan-instance';
+import {setWebViewDocumentUri} from '../../panels/panel-utils.ts/set-document';
+import {OutlinePreviewPanel} from "../../panels/outlinePreviewPanel";
+import {CabinetCommandToWebView, CabinetContentType, CardPlace} from "../../shared-types";
 
 export const showPreviewCommand = (cabinetInstance: CabinetNode) => vscode.commands.registerCommand('cabinetplugin.showPreview', async () => {
 
@@ -92,7 +90,7 @@ export const showPreview = async (html: string, documentTitle: string): Promise<
         cabinetPreviewPanel.webview.onDidReceiveMessage(
             async message => {
                 if (message.command.startsWith('add')) {
-                    await freePreviewSync();
+                    await freezePreviewSync();
                 }
 
                 switch (message.command) {
@@ -199,7 +197,7 @@ export const togglePreviewSyncCommand = function (): () => Promise<void> {
 
 };
 
-export const freePreviewSync = async () => {
+export const freezePreviewSync = async () => {
     const syncPreviewWithEditor = await vscode.workspace.getConfiguration('cabinetplugin').get('syncPreviewWithEditor') ?? true;
 
     if (!syncPreviewWithEditor) {
@@ -222,11 +220,17 @@ export const postMessageToPreviewPanel = async (message: any) => {
 }
 
 export const scrollToLineInPreview = (line: number, uri?: string) => {
-    postMessageToPreviewPanel({
-        command: 'goToLine',
-        line,
-        documentUri: uri // if uri is provided, only matched uri will be scrolled to
-    });
+
+    OutlinePreviewPanel.currentPanel?.postMessageToWebview(
+        {
+            command: CabinetCommandToWebView.goToLine,
+            contentTypes: [CabinetContentType.lineNumber, CabinetContentType.uri]
+            ,
+            lineNumber: line,
+            uri: uri
+        }
+    )
+
 };
 
 export const sendUpdateCardRequestToPreviewPanelCommand = (cabinetNode: CabinetNode): vscode.Disposable => {

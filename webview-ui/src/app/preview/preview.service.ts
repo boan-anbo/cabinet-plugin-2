@@ -20,6 +20,9 @@ export class PreviewService {
    */
   linesInViewPort: Set<string> = new Set();
   mouseOverPreviewLine = new BehaviorSubject<number | null>(null);
+  /**
+   * Current nav line under mouse
+   */
   mouseOverNavLine = new BehaviorSubject<number | null>(null);
   linesInViewPortBroadCast = new BehaviorSubject<Set<string>>(this.linesInViewPort);
   showCardButtons = false;

@@ -1,23 +1,26 @@
 import * as vscode from "vscode";
 
 let outlinePreviewHighlighLine:  vscode.TextEditorDecorationType | undefined = undefined;
-export const highlighLine = (line: number) => {
+export const highlightLine = async (line: number, documentUri: string) => {
 
-// highlight a line in VS Code editor by changing its color
-    const activeEditor = vscode.window.activeTextEditor;
-    if (!activeEditor) {
-        vscode.window.showErrorMessage("No active editor");
+    let editor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === documentUri);
+    if (!editor) {
+
+        // open document in a new editor
+        const doc = await vscode.workspace.openTextDocument(documentUri);
+        // show the editor with the doc
+        editor = await vscode.window.showTextDocument(doc);
     }
     // clear previous highlight
     if (outlinePreviewHighlighLine) {
         outlinePreviewHighlighLine.dispose();
     }
-    if (activeEditor) {
-       outlinePreviewHighlighLine = vscode.window.createTextEditorDecorationType({
+    if (editor) {
+        outlinePreviewHighlighLine = vscode.window.createTextEditorDecorationType({
             backgroundColor: "rgba(255, 0, 0, 0.2)",
             rangeBehavior: vscode.DecorationRangeBehavior.OpenOpen,
         });
-        activeEditor.setDecorations(outlinePreviewHighlighLine, [new vscode.Range(line, 0, line, 0)]);
+        editor.setDecorations(outlinePreviewHighlighLine, [new vscode.Range(line, 0, line, 100)]);
     }
 
 
