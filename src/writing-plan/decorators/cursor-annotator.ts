@@ -1,3 +1,4 @@
+import { json } from "body-parser";
 import { DecorationOptions, ExtensionContext, Position, Range, TextEditorDecorationType, TextEditorSelectionChangeEvent, ThemableDecorationAttachmentRenderOptions, window, workspace } from "vscode";
 import { Section } from "writing-plan/build/main/lib/section";
 import { SectionTreeItem } from "../entities/writing-plan-tree-item";
@@ -63,7 +64,8 @@ export const registerCursorDecorations = (context: ExtensionContext) => {
             timeout = undefined;
         }
         if (throttle) {
-            timeout = setTimeout(updateDecorations, 500);
+            // @ts-ignore
+            timeout  = setTimeout(updateDecorations, 500);
         } else {
             updateDecorations(section, cursorPosition, endOfLine);
         }

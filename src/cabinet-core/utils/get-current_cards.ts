@@ -2,7 +2,7 @@ import { Position } from "vscode";
 import * as vscode from "vscode";
 import { cabinetNodeInstance } from "../../extension";
 import { Card } from "cabinet-node";
-import { CardPlace } from "../types/card-place";
+import { CardPlace } from "../../shared-types";
 
 export interface InsertOption {
     select?: boolean

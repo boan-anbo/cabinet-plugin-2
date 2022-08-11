@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "ES2019",
     "outDir": "out",
-    "lib": ["es6", "dom"],
+    "lib": ["es6", "dom", "es2019"],
     "sourceMap": true,
     "rootDir": "src",
     "strict": true
   },
-  "exclude": ["node_modules", ".vscode-test", "webview-ui"]
+  "exclude": ["node_modules", ".vscode-test", "webview-ui","src/test/suite/**"]
 }

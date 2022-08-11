@@ -1,10 +1,10 @@
 {
-  "name": "cabinet-plugin-ng",
+  "name": "cabinet-plugin-2",
   "displayName": "cabinet-plugin",
   "description": "Cabinet Plugin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "engines": {
-    "vscode": "^1.46.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Other"
@@ -83,6 +83,12 @@
           "group": "navigation"
         },
         {
+          "when": "resourceLangId == markdown || resourceLangId == latex",
+          "command": "outlinePreview.open",
+          "alt": "outlinePreview.open",
+          "group": "navigation"
+        },
+        {
           "command": "cabinetplugin.togglePreviewSync",
           "alt": "cabinetplugin.togglePreviewSync",
           "group": "navigation"
@@ -118,9 +124,9 @@
     ],
     "commands": [
       {
-        "command": "writing-plan.showHelloWorld",
-        "title": "Hello World (Angular): Show",
-        "category": "Writing Plan"
+        "command": "outlinePreview.open",
+        "title": "Open",
+        "category": "Outline Preview"
       },
       {
         "command": "writing-plan.test",
@@ -222,13 +228,18 @@
       },
       {
         "command": "cabinetplugin.showPreview",
-        "title": "[C] Preview",
+        "title": "Pre 1",
         "category": "Cabinet"
       },
       {
         "command": "cabinetplugin.togglePreviewSync",
-        "title": "[C] Sync Preview",
+        "title": "Sync Pre 1",
         "category": "Cabinet"
+      },
+      {
+        "command": "outlinePreview.open",
+        "title": "Pre 2",
+        "category": "OutlinePreview"
       },
       {
         "command": "cabinetplugin.outputPreviewHtml",
@@ -366,32 +377,48 @@
     "install:all": "npm install && npm --prefix ./webview-ui install ./webview-ui",
     "start:webview": "npm --prefix ./webview-ui run start",
     "build:webview": "npm --prefix ./webview-ui run build",
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "recompile": "npm link cabinet-node writing-plan wikijs-processor"
+    "vscode:prepublish": "npm run compile",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "test-compile": "tsc -p ./"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/glob": "^7.1.3",
     "@types/node": "^12.20.55",
     "@types/vscode": "^1.46.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
-    "axios": "^0.26.1",
+    "@vscode/test-electron": "^2.1.5",
     "body-parser": "^1.19.1",
-    "cors": "^2.8.5",
+    "esbuild": "^0.15.0",
     "eslint": "^7.19.0",
     "express": "^4.17.2",
     "follow-redirects": "^1.14.6",
     "glob": "^7.1.6",
-    "markdown-it": "^12.3.0",
     "path-browserify": "^1.0.1",
     "prettier": "^2.2.1",
+    "ts-loader": "^9.3.1",
     "typescript": "^4.1.3",
-    "uuid": "^8.3.2",
     "vscode-test": "^1.5.0",
-    "writing-plans": "^0.0.3"
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "cabinet-node": "^1.0.37",
+    "cors": "^2.8.5",
+    "markdown-it": "^13.0.1",
+    "markdown-it-anchor": "^8.6.4",
+    "markdown-it-attrs": "^4.1.4",
+    "markdown-it-collapsible": "^1.0.0",
+    "uuid": "^8.3.2",
+    "wikijs-processor": "^1.0.0",
+    "writing-plan": "^0.5.2"
   }
 }

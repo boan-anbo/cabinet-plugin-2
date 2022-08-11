@@ -2,28 +2,41 @@
   cdkDropList
   [cdkDropListData]="points"
   (cdkDropListDropped)="drop($event)"
-  class="bg-gray-200 text-black rounded-l-2xl pl-4 pr-4 truncate  drop-shadow-lg py-4 select-none
+  class="bg-gray-200 text-black rounded-l-2xl pl-4 pr-4 truncate  drop-shadow-lg pt-0 pb-4 select-none
 ">
 
-  <div class="text-xs">
-    <button mat-flat-button (click)="this.scroll.scrollToId('preview-bottom', undefined, 0)">To Bottom</button>
-    <button mat-flat-button (click)="scroll.scrollToId('preview-top', undefined, 0)">To Top</button>
-    <button
-      mat-button
-      [color]="previewState.autoBackScrollToSelectedPointNav ? 'accent' : undefined "
-      (click)="this.previewState.autoBackScrollToSelectedPointNav = !this.previewState.autoBackScrollToSelectedPointNav"
-    >
-      Pin Selected
-    </button>
-    <button
-      matTooltip="Whether to automatically scroll to mouseover point"
-      mat-button
-      [color]="previewState.autoScrollToMouseOverNavLine ? 'accent' : undefined "
-      (click)="this.previewState.autoScrollToMouseOverNavLine= !this.previewState.autoScrollToMouseOverNavLine"
-    >
-      Smooth Scroll
-    </button>
 
+  <div class="text-xs">
+    <div class="flex justify-center">
+      <div>
+        <button mat-flat-button (click)="this.scroll.scrollToId('preview-bottom', undefined, 0)">To Bottom</button>
+      </div>
+      <div>
+        <button mat-flat-button (click)="scroll.scrollToId('preview-top', undefined, 0)">To Top</button>
+      </div>
+    </div>
+    <div class="flex justify-center">
+      <div>
+        <button
+          mat-button
+          [color]="previewState.autoBackScrollToSelectedPointNav ? 'accent' : undefined "
+          (click)="this.previewState.autoBackScrollToSelectedPointNav = !this.previewState.autoBackScrollToSelectedPointNav"
+        >
+          Pin Selected
+        </button>
+      </div>
+      <div>
+        <button
+          matTooltip="Whether to automatically scroll to mouseover point"
+          mat-button
+          [color]="previewState.autoScrollToMouseOverNavLine ? 'accent' : undefined "
+          (click)="this.previewState.autoScrollToMouseOverNavLine= !this.previewState.autoScrollToMouseOverNavLine"
+        >
+          Instant Scroll
+        </button>
+      </div>
+
+    </div>
   </div>
   <!--  preview draggable entry-->
   <div cdkDrag

@@ -110,7 +110,7 @@ export class WritingPlanInstance implements Disposable {
         }
 
         if (this.writingPlans[0] !== null) {
-            return this.writingPlans[0] && this.writingPlans[0].hasPlan() ? this.writingPlans[0] : null;
+            return this.writingPlans[0] && this.writingPlans[0]?.hasPlan() ? this.writingPlans[0] : null;
         }
         return null;
     }

@@ -1,22 +1,46 @@
+import { MarkdownPoint } from "cabinet-node";
 export enum CabinetCommandToVsCode {
 
-    preview = "preview",
     updateUsedCardsInPreview = "updateUsedCardsInPreview",
     addCCI = "addCCI",
     addPoint = "addPoint",
     openFile = "openFile",
     jumpToLineByCard = "jumpToLineByCard",
+    /**
+     * message.line: line number to jump to
+     * message.uri: uri of the document to jump to
+     */
     jumpToLine = "jumpToLine",
     requestDocumentUri = "requestDocumentUri",
     insertLatex = "insertLatex",
     hello = "hello",
+    requestCurrentMarkdown = "requestCurrentMarkdown",
+    /**
+     * message.uri: uri of the document to jump to
+     * message.payload: {MoveInstruction}
+     */
+    movePoints = "movePoints",
 }
 
 export enum CabinetCommandToWebView {
     setDocumentUri = "setDocumentUri",
     test = "test",
     updateUsedCards = "updateUsedCards",
-    goToLine = "goToLine"
+    goToLine = "goToLine",
+
+    /**
+     * Message.text: tested command sent from Webview to Vscode
+     * Message.payload: the entire message received by VsCode
+     */
+    provideTestReport = "provideTestReport",
+
+    preview = "preview",
+    /**
+     * message.payload: {@link MarkdownProviderPayload}
+     * 
+     * message.uri: document uri
+     */
+    provideCurrentMarkdownPoints = "provideCurrentMarkdownPoints",
 }
 
 /**
@@ -34,6 +58,8 @@ export enum CabinetContentType {
 export class CabinetMessageToVsCode<T> {
     command: CabinetCommandToVsCode;
     contentTypes: CabinetContentType[] = [];
+    contentNote? = "";
+    isTest? = false;
     payload?: T;
     text?: string;
     lineNumber?: number;
@@ -64,6 +90,7 @@ export class CabinetMessageToVsCode<T> {
 export class CabinetMessageToWebView<T> {
     command: CabinetCommandToWebView;
     contentTypes: CabinetContentType[] = [];
+    isTest? = false;
     payload?: T;
     text?: string;
     lineNumber?: number;
@@ -100,4 +127,18 @@ export interface CardPlace {
     column: number;
     lineText: string;
     documentUri: string;
+}
+
+
+export interface MarkdownProviderOptions {
+    /**
+     * Whether the Webview should unfreeze the preview when receiving this option.
+     */
+    forceRefresh?: boolean;
+}
+
+export interface MarkdownProviderPayload {
+    options: MarkdownProviderOptions;
+    markdownPoints: MarkdownPoint[];
+    markdownText: string;
 }

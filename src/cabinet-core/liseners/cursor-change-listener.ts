@@ -6,6 +6,6 @@ export const cabinetCursorChangeListener = (e: TextEditorSelectionChangeEvent) =
     if (e.selections.length > 0) {
         const uri = e.textEditor.document.uri.toString();
         console.log(uri)
-        scrollToLineInPreview(e.selections[0].active.line, uri);
+        scrollToLineInPreview(e.selections[0].active.line + 0, uri);
     }
 };

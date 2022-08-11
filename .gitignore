@@ -3,3 +3,4 @@
 /.vscode/
 /webview-ui/package-lock.json
 /package-lock.json
+.angular/
