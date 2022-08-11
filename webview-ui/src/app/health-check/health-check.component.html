@@ -1,0 +1,26 @@
+<div class="bg-amber-400 w-full h-full  text-lg py-10 px-10">
+
+  <button
+    class="text-center"
+    mat-button [routerLink]="['/preview']">
+    Back to Preview
+  </button>
+  <button
+    class="text-center"
+    mat-raised-button (click)="selfCheck.testAll()">
+    Check
+  </button>
+
+  <div class="flex  space-x-10 px-20" *ngFor="let check of getTestEntries(); let index = index">
+    <div class=" w-2/12">
+      {{index + 1}}
+    </div>
+    <div class="w-8/12 text-right">
+      {{check.key}}
+    </div>
+    <div class="w-2/12 font-bold">
+      {{check.value}}
+    </div>
+  </div>
+
+</div>

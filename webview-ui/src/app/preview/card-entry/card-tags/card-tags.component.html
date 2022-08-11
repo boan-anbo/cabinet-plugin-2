@@ -1,0 +1,10 @@
+<mat-chip-list class=" text-xs">
+
+  <mat-chip selected [color]="isTagImportant(tag) ? 'accent' : undefined" class="  drop-shadow"
+            *ngFor="let tag of (card.tags) as Tag">
+    <fa-icon *ngIf="isTagImportant(tag)" class="mr-1" [icon]="faImportant"></fa-icon>
+    {{tag.key}}
+  </mat-chip>
+
+
+</mat-chip-list>

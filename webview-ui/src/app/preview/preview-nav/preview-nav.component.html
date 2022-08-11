@@ -1,39 +1,81 @@
 <div
-  class="bg-pink-400 text-black rounded-l-2xl pl-4 pr-4 truncate  drop-shadow-lg py-4">
+  cdkDropList
+  [cdkDropListData]="points"
+  (cdkDropListDropped)="drop($event)"
+  class="bg-gray-200 text-black rounded-l-2xl pl-4 pr-4 truncate  drop-shadow-lg py-4 select-none
+">
 
-  <div *ngFor="let point of points; let pointIndex=index">
+  <div class="text-xs">
+    <button mat-flat-button (click)="this.scroll.scrollToId('preview-bottom', undefined, 0)">To Bottom</button>
+    <button mat-flat-button (click)="scroll.scrollToId('preview-top', undefined, 0)">To Top</button>
+    <button
+      mat-button
+      [color]="previewState.autoBackScrollToSelectedPointNav ? 'accent' : undefined "
+      (click)="this.previewState.autoBackScrollToSelectedPointNav = !this.previewState.autoBackScrollToSelectedPointNav"
+    >
+      Pin Selected
+    </button>
+    <button
+      matTooltip="Whether to automatically scroll to mouseover point"
+      mat-button
+      [color]="previewState.autoScrollToMouseOverNavLine ? 'accent' : undefined "
+      (click)="this.previewState.autoScrollToMouseOverNavLine= !this.previewState.autoScrollToMouseOverNavLine"
+    >
+      Smooth Scroll
+    </button>
 
+  </div>
+  <!--  preview draggable entry-->
+  <div cdkDrag
 
+       inViewport
+       (inViewportAction)="onIntersection($event)"
+
+       class="flex flex-col space-y-4   mb-0.5"
+       (mouseenter)="this.preview.mouseOverNavLine.next(point.line)"
+       (mouseleave)="onMouseLeaveNav()"
+       [cdkDragDisabled]="!canDrag()"
+       [id]="'nav-line-' + point.line"
+       [cdkDragData]="point"
+       *ngFor="let point of points; let pointIndex=index"
+  >
+
+    <!--    preview entry dragging placeholder-->
+    <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+    <!--    Preview entry-->
     <div
 
-      [ngClass]="{' border-t-2 border-t-gray-50 mt-2': isHeading(point)  }"
+      [ngClass]="{'bg-yellow-400': isNavPointSelected(point), ' border-t-2 rounded-t-xl border-t-gray-50 mt-2': isHeading(point), 'bg-yellow-200': isPreviewLineInViewPort(point.line) && !isNavPointSelected(point), 'bg-yellow-50': !isPreviewLineInViewPort(point.line) && !isNavPointSelected(point)}"
       class="flex
     text-left
    space-y-2
    text-xs
-   truncate
+   py-1
    items-baseline
-
+   hover:bg-yellow-400
+ px-2
 ">
 
-      <div class="w-1/12 text-gray-600 drop-shadow">
+      <div class="w-1/12 text-gray-600 drop-shadow ">
         {{point.line}}
       </div>
       <div [ngClass]="{ 'font-bold underline': isHeading(point), 'pl-3': isLevelTwo(point), 'pl-4': isLevelThree(point),
       'pl-5': isLevelFour(point)  }"
            class="w-11/12">
+
         <a class="text-xs hover:underline hover:cursor-pointer flex"
-           [ngxScrollTo]="pointIndex"
-           [ngxScrollToOffset]="-100"
-           (click)="onClickHeader()"
+           (click)="onClickNavPoint(point)"
+           (dblclick)="onDblClickNavPoint(point)"
         >
           <div *ngIf="isHeading(point)" class="no-underline mr-2">
             {{point.headerLevel ?? ''}}
           </div>
-<!--          TODO I have added parent point to markdown point entity, here the point could use parent point to get correct indentation-->
-          <div>
-            {{ point.content}}
-          </div>
+          <!--          TODO I have added parent point to markdown point entity, here the point could use parent point to get correct indentation-->
+          <pre class="whitespace-pre-line leading-3 "
+               [ngClass]="{'font-bold text-white bg-red-700': isMouseOverLine(point.line)}">
+            {{ point.content.split(' ').slice(0, 15).join(' ') }}
+          </pre>
         </a>
       </div>
     </div>

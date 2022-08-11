@@ -1,4 +1,57 @@
-<div class="bg-gray-50 drop-shadow rounded-xl px-4 py-4 space-y-4">
+<div
+  *ngIf="preview.showCardButtons"
+
+  class="flex px-4 space-x-4
+  py-0
+  text-gray-800
+  rounded-3xl
+  bg-gray-50
+  w-fit
+  drop-shadow-lg
+  mb-2
+">
+  <button
+    class="mr-4 hover:text-red-400  "
+    mat-icon-button
+    matTooltip="Add Point to VsCode"
+    (click)="this.addCardToVsCode()"
+  >
+    <fa-icon [icon]="faAddPointIcon"></fa-icon>
+  </button>
+
+  <button
+    class="hover:text-red-400"
+    mat-icon-button
+    matTooltip="Add Latex to VsCode">
+    <span class="text-sm">Tex</span>
+  </button>
+
+
+</div>
+<div class="bg-gray-50 drop-shadow rounded-xl my-3 px-4 py-4 space-y-3"
+     (dblclick)="vscodeControl.askVscodeToJump(cardLine)"
+>
+  <div *ngIf="parentPoint" class="
+  hover:opacity-100
+  cursor-pointer
+  opacity-60
+  flex text-sm truncate space-x-2 bg-gray-200 rounded-3xl py-1 px-4  drop-shadow "
+       (dblclick)="preview.jumpToPreviewLine(parentPoint.line)"
+       matTooltip="Jump to parent point"
+  >
+    <div class="text-green-600">
+      <fa-icon [icon]="sourceIcon"></fa-icon>
+    </div>
+    <div class="truncate px-4">
+      {{parentPoint.content}}
+    </div>
+  </div>
+
+  <div *ngIf="hasTags(card)">
+    <!--    Card tags-->
+    <app-card-tags [card]="card"></app-card-tags>
+  </div>
+
   <div class="flex space-x-6">
     <div>
       <fa-icon [icon]="faNoteSticky"></fa-icon>
@@ -8,7 +61,7 @@
     </div>
   </div>
   <div>
-    <app-card-source [source]="card.source"></app-card-source>
+    <app-card-source [card]="card" [source]="card.source"></app-card-source>
   </div>
 
   <div class="flex space-x-4">
@@ -16,10 +69,10 @@
     <div>
       <fa-icon class="text-pink-600" [icon]="faHighlighter"></fa-icon>
     </div>
-    <div>
-      <span class="bg-yellow-300">
-      {{card.text}}
-        </span>
+    <div *ngIf="cardTextWithoutBreak.length > 0">
+      <pre class="bg-gray-100 rounded-2xl px-4 py-2 italic leading-6 text-sm whitespace-pre-line drop-shadow indent-0">
+      {{cardTextWithoutBreak}}
+        </pre>
     </div>
   </div>
 

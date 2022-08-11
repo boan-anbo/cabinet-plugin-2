@@ -1,0 +1,15 @@
+<div class="flex pl2 space-x-2 py-0 rounded pl-4 my-1 ">
+  <div
+    class="flex pr-3 text-red-600 ">
+
+    <app-float-add-button [point]="point"></app-float-add-button>
+
+  </div>
+  <fa-icon [icon]="faParagraph" class="opacity-40 text-gray-600 drop-shadow">
+  </fa-icon>
+  <div>
+    <pre class=" leading-6 whitespace-pre-line">
+    {{paragraphContent}}
+      </pre>
+  </div>
+</div>

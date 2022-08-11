@@ -1,0 +1,108 @@
+<div class="flex text-red-600 space-x-2 items-center   "
+
+
+>
+  <div
+
+    (mouseenter)="onMouseEnterButton()"
+    (mouseleave)="mouseLeftButton.next(true)"
+  >
+
+    <button
+      *ngIf="visible && addButtonType === 'add'"
+      class="hover:opacity-100 opacity-10"
+      [matMenuTriggerFor]="menu"
+    >
+      <!--  (click)="addPoint(false, $event)"-->
+      <fa-icon [icon]="faAddPointIcon"></fa-icon>
+    </button>
+    <button
+      *ngIf="visible && addButtonType === 'addAll'"
+      class="hover:opacity-100 ml-3 opacity-10 text-red-600"
+      [matMenuTriggerFor]="menu"
+    >
+      <fa-icon [icon]="faAddAll"></fa-icon>
+
+    </button>
+  </div>
+  <mat-menu
+
+    [hasBackdrop]="false"
+    class="w-fit text-red-600" #menu="matMenu">
+    <div
+      (mouseleave)="onMouseLeftMenu()"
+      (mouseenter)="onMouseEnteredMenu()"
+    >
+      <!--Default-->
+
+      <button
+        mat-menu-item
+        (click)="addPoint(point.mdMarkup ,false, $event)"
+      >
+        <div class="space-x-2 flex items-center">
+          <div class="text-lg drop-shadow">
+            {{point.mdMarkup}}
+          </div>
+          <div>
+            Original
+          </div>
+        </div>
+      </button>
+      <mat-divider></mat-divider>
+      <!--    Point -->
+      <button
+        mat-menu-item
+        (click)="addPoint('-' ,false, $event)"
+      >
+        <div class="space-x-2 flex">
+          <div>
+            <fa-icon
+              class="text-sm"
+              [icon]="faPoint">
+            </fa-icon>
+          </div>
+          <div>
+            Point
+          </div>
+        </div>
+      </button>
+      <!--Paragraph -->
+      <button
+        mat-menu-item
+        (click)="addPoint('' ,false, $event)"
+      >
+        <div class="space-x-2 flex">
+          <div>
+            <fa-icon
+              class="text-sm"
+              [icon]="faParagraph">
+            </fa-icon>
+          </div>
+          <div>
+            Paragraph
+          </div>
+        </div>
+      </button>
+      <mat-divider></mat-divider>
+      <!--    Headings -->
+      <button
+        mat-menu-item
+
+        *ngFor="let btnNumber of [1, 2, 3, 4, 5]"
+        (click)="addPoint('#'.repeat(btnNumber) ,false, $event)"
+      >
+
+        <div class="space-x-2 flex">
+          <div>
+            <fa-icon
+              class="text-sm"
+              [icon]="faHeading">
+            </fa-icon>
+          </div>
+          <div>Heading {{btnNumber}}</div>
+        </div>
+      </button>
+    </div>
+  </mat-menu>
+
+</div>

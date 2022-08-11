@@ -20,6 +20,8 @@ class VSCodeAPIWrapper {
     }
   }
 
+  // mock vscode listeners
+
   /**
    * Post a message (i.e. send arbitrary data) to the owner of the webview.
    *

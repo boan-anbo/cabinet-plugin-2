@@ -1,0 +1,11 @@
+<div class="flex space-x-4 justify-center bg-gray-50 border-b-2">
+  <div class="text-xs">
+    Current Document Uri: {{this.vsCodeState.currentDocumentUri | async}}
+  </div>
+  <div>
+    Current line: {{this.vsCodeState.currentActiveLine | async}}
+  </div>
+  <div>
+    Loading Data: {{this.vsCodeState.previewState | async}}
+  </div>
+</div>

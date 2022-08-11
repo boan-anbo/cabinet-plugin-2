@@ -1,0 +1,43 @@
+<div class="flex justify-center space-x-2 rounded-b-2xl drop-shadow-lg bg-gray-50 w-full ">
+  <div>
+    <button
+      mat-button
+      [color]="previewState.showAllParagraphsGlobal ? 'accent' : undefined "
+      (click)="this.previewState.showAllParagraphsGlobal = !this.previewState.showAllParagraphsGlobal"
+    >
+      Paragraphs
+    </button>
+    <button
+      mat-button
+      [color]="previewState.showOnlySelectedPoint ? 'accent' : undefined "
+      (click)="this.previewState.showOnlySelectedPoint = !this.previewState.showOnlySelectedPoint"
+    >
+      Selected Only
+    </button>
+
+    <button mat-button
+            [color]="!previewState.allowVsCodeToProvideNewMarkdownPoints.getValue() ? 'accent' : undefined "
+            (click)="this.previewState.allowVsCodeToProvideNewMarkdownPoints.next(!this.previewState.allowVsCodeToProvideNewMarkdownPoints.getValue())">
+      Freeze
+    </button>
+<!--    <button mat-button (click)="renderPreview()">Render Preview</button>-->
+    <button mat-button
+            (click)="this.previewService.showRawMarkdownPoint = !this.previewService.showRawMarkdownPoint">Raw Markdown
+    </button>
+    <button mat-button (click)="previewService.showCardButtons = !previewService.showCardButtons">
+      Card Buttons
+    </button>
+    <button mat-button [color]="previewState.allowVsCodeToScroll ? 'accent' : undefined "
+            (click)="previewState.allowVsCodeToScroll = !previewState.allowVsCodeToScroll">
+      Sync Vscode Cursor
+    </button>
+
+    <button mat-button [color]="previewNavService.allowNavToScrollWithPreview ? 'accent' : undefined "
+            (click)="previewNavService.allowNavToScrollWithPreview = !previewNavService.allowNavToScrollWithPreview">
+      Sync Nav
+    </button>
+    <!--    <button mat-button [routerLink]="['/health']">Health</button>-->
+  </div>
+
+
+</div>

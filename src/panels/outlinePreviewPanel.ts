@@ -1,14 +1,23 @@
 import * as vscode from "vscode";
-import { Disposable, Uri, ViewColumn, Webview, WebviewPanel, window } from "vscode";
-import { getUri } from "../utilities/getUri";
-import { CabinetCommandToVsCode, CabinetCommandToWebView, CabinetContentType, CabinetMessageToVsCode, CabinetMessageToWebView } from "../shared-types";
-import { CabinetCardIdentifier, MarkdownPoint } from "cabinet-node";
-import { cabinetPreviewPanel, freePreviewSync, updateUsedCardsInPreview } from "../cabinet-core/webviews/preview-panel";
-import { insertText } from "../cabinet-core/utils/insert-text";
-import { InsertOption } from "../cabinet-core/types/insert-option";
-import { openCardSourceFile } from "../cabinet-core/utils/open-source-file";
-import { goToLine } from "../cabinet-core/commands/go-to-line-command";
-import { cabinetNodeInstance } from "../extension";
+import {Disposable, Uri, ViewColumn, Webview, WebviewPanel, window} from "vscode";
+import {getUri} from "../utilities/getUri";
+import {
+    CabinetCommandToVsCode,
+    CabinetCommandToWebView,
+    CabinetContentType,
+    CabinetMessageToVsCode,
+    CabinetMessageToWebView
+} from "../shared-types";
+import {CabinetCardIdentifier, MarkdownPoint} from "cabinet-node";
+import {cabinetPreviewPanel, freezePreviewSync, updateUsedCardsInPreview} from "../cabinet-core/webviews/preview-panel";
+import {insertText} from "../cabinet-core/utils/insert-text";
+import {InsertOption} from "../cabinet-core/types/insert-option";
+import {openCardSourceFile} from "../cabinet-core/utils/open-source-file";
+import {goToLine} from "../cabinet-core/commands/go-to-line-command";
+import {cabinetNodeInstance} from "../extension";
+import {writingPlanInstance} from "../writing-plan/writing-plan-instance";
+import {highlightLines} from "../writing-plan/decorators/line-highlighter";
+import {highlightLine} from "../cabinet-core/utils/highlight-line";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -20,13 +29,13 @@ import { cabinetNodeInstance } from "../extension";
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class HelloWorldPanel {
-    public static currentPanel: HelloWorldPanel | undefined;
+export class PreviewPanel {
+    public static currentPanel: PreviewPanel | undefined;
     private readonly _panel: WebviewPanel;
     private _disposables: Disposable[] = [];
 
     /**
-     * The HelloWorldPanel class private constructor (called only from the render method).
+     * The PreviewPanel class private constructor (called only from the render method).
      *
      * @param panel A reference to the webview panel
      * @param extensionUri The URI of the directory containing the extension
@@ -52,28 +61,29 @@ export class HelloWorldPanel {
      * @param extensionUri The URI of the directory containing the extension.
      */
     public static render(extensionUri: Uri) {
-        if (HelloWorldPanel.currentPanel) {
+        if (PreviewPanel.currentPanel) {
             // If the webview panel already exists reveal it
-            HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
+            PreviewPanel.currentPanel._panel.reveal(ViewColumn.One);
         } else {
             // If a webview panel does not already exist create and show a new one
             const panel = window.createWebviewPanel(
                 // Panel view type
-                "showHelloWorld",
+                "outlinePreview",
                 // Panel title
-                "Hello World",
+                "Outline Preview",
                 // The editor column the panel should be displayed in
-                ViewColumn.One,
+                ViewColumn.Two,
                 // Extra panel configurations
                 {
                     // Enable JavaScript in the webview
                     enableScripts: true,
+                    enableFindWidget: true,
                 }
             );
 
-            HelloWorldPanel.currentPanel = new HelloWorldPanel(panel, extensionUri);
+            PreviewPanel.currentPanel = new PreviewPanel(panel, extensionUri);
 
-            return HelloWorldPanel.currentPanel;
+            return PreviewPanel.currentPanel;
 
         }
     }
@@ -82,7 +92,7 @@ export class HelloWorldPanel {
      * Cleans up and disposes of webview resources when the webview panel is closed.
      */
     public dispose() {
-        HelloWorldPanel.currentPanel = undefined;
+        PreviewPanel.currentPanel = undefined;
 
         // Dispose of the current webview panel
         this._panel.dispose();
@@ -145,12 +155,25 @@ export class HelloWorldPanel {
     private _setWebviewMessageListener(webview: Webview) {
         webview.onDidReceiveMessage(
             async (message: CabinetMessageToVsCode<any>) => {
+                console.log(`VsCode Received message from Webview: ${message.command}`, {message});
+
                 const command = message.command;
                 const text = message.text;
+                const isTest = message.isTest;
 
-                if
-                    (message.command.startsWith('add')) {
-                    await freePreviewSync();
+                /**
+                 * If the message in a test message, report test result and stop execution.
+                 */
+                if (isTest) {
+                    console.log(`Received test request: ${command}`);
+                    this.reportTestResult(command, message);
+                    // return since this is a test message
+                    return;
+                }
+
+
+                if (message.command.startsWith('add')) {
+                    await freezePreviewSync();
                 }
 
                 switch (command) {
@@ -195,7 +218,7 @@ export class HelloWorldPanel {
                         return;
                     case 'jumpToLineByCard':
                         // const {line, documentUri} = JSON.parse(message.cardPlace) as CardPlace;
-                        const { lineNumber, uri } = message;
+                        const {lineNumber, uri} = message;
                         if (lineNumber && uri) {
                             goToLine(lineNumber, uri);
                             return;
@@ -204,18 +227,24 @@ export class HelloWorldPanel {
                             return;
                         }
                     case 'jumpToLine':
-                        // parse received message uri
-                        if (message.lineNumber) {
-                            goToLine(message.lineNumber, message.uri);
+                        if (!message.lineNumber || !message.uri) {
+                            vscode.window.showErrorMessage("Cannot jump to Line location, no lineNumber or Uri provided");
+                            return;
                         }
+                        // parse received message uri
+                        await goToLine(message.lineNumber, message.uri);
+                        await highlightLine(message.lineNumber, message.uri);
                         return;
                     case 'requestDocumentUri':
                         const activeEditor = vscode.window.activeTextEditor;
                         if (activeEditor) {
                             const documentUri = activeEditor.document.uri.toString();
-                            cabinetPreviewPanel?.webview.postMessage({ command: 'setDocumentUri', documentUri });
+                            cabinetPreviewPanel?.webview.postMessage({command: 'setDocumentUri', documentUri});
                             console.log('Heard Document URI request, sending back uri', documentUri);
                         }
+                        return;
+                    case CabinetCommandToVsCode.requestCurrentMarkdown:
+                        await this.provideMarkdownPoints();
                         return;
                     case 'insertLatex':
                         const cci = CabinetCardIdentifier.fromJsonString(message.text);
@@ -243,8 +272,7 @@ export class HelloWorldPanel {
 
                         window.showInformationMessage('I Received:' + text);
                         return;
-                    // Add more switch case statements here as more webview message commands
-                    // are created within the webview context (i.e. inside media/main.js)
+
                 }
             },
             undefined,
@@ -256,8 +284,37 @@ export class HelloWorldPanel {
      * Public commands
      */
 
-    private postMessageToWebview<T>(message: CabinetMessageToWebView<T>) {
+    public postMessageToWebview<T>(message: CabinetMessageToWebView<T>) {
         console.log("postMessageToWebview", message);
+        // check the completeness of the message's content
+        const missingContent: CabinetContentType [] = message.contentTypes.filter(contentType => {
+
+            if (contentType === CabinetContentType.payload) {
+                if (!message.payload) {
+                    return true;
+                }
+            }
+            if (contentType === CabinetContentType.text) {
+                if (!message.text) {
+                    return true;
+                }
+            }
+            if (contentType === CabinetContentType.uri) {
+                if (!message.uri) {
+                    return true;
+                }
+            }
+            if (contentType === CabinetContentType.lineNumber) {
+                if (!message.lineNumber) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        if (missingContent.length > 0) {
+            throw new Error(`Missing content in message: ${JSON.stringify(missingContent)}`);
+        }
         this._panel.webview.postMessage(message);
     }
 
@@ -268,7 +325,7 @@ export class HelloWorldPanel {
 
         this.postMessageToWebview({
             command: CabinetCommandToWebView.test,
-            contentTypes: CabinetContentType.payload,
+            contentTypes: [CabinetContentType.payload],
             payload: "haha"
         });
     }
@@ -281,8 +338,8 @@ export class HelloWorldPanel {
 
         console.log("preview", markdownPoints);
         this.postMessageToWebview({
-            command: CabinetCommandToVsCode.preview,
-            contentTypes: CabinetContentType.payload,
+            command: CabinetCommandToWebView.preview,
+            contentTypes: [CabinetContentType.payload],
             payload: markdownPoints
         });
     }
@@ -295,13 +352,74 @@ export class HelloWorldPanel {
         if (activeEditor) {
             const documentUri = activeEditor.document.uri.toString();
             console.log('Heard Document URI request, sending back uri', documentUri);
-            this.postMessageToWebview({ command: CabinetCommandToWebView.setDocumentUri, contentTypes: CabinetContentType.uri, payload: {
-                uri: documentUri
-            }
+            this.postMessageToWebview({
+                command: CabinetCommandToWebView.setDocumentUri,
+                contentTypes: [CabinetContentType.uri],
+                payload: {
+                    uri: documentUri
+                }
             });
             console.log(`setWebViewDocumentUri: ${documentUri}`);
 
         }
+
+    }
+
+    /**
+     * Report command test result to Webview
+     */
+    reportTestResult = (testedCommand: CabinetCommandToVsCode, messageObject: CabinetMessageToVsCode<any>) => {
+        console.log("reportTestResult", testedCommand, messageObject);
+        this.postMessageToWebview({
+            command: CabinetCommandToWebView.provideTestReport,
+            contentTypes: [
+                CabinetContentType.payload,
+                CabinetContentType.text,
+            ],
+            text: testedCommand,
+            payload: {
+                messageObject
+            }
+        });
+    }
+
+    /**
+     * Provide the parsed markdown points from the current editor's document to the webview
+     */
+    provideMarkdownPoints = async () => {
+
+        if (!cabinetNodeInstance) {
+            throw new Error("CabinetNodeInstance is not initialized");
+        }
+
+        // active editor
+        // await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            vscode.window.showErrorMessage("No active editor");
+        }
+        let documentText = activeEditor.document.getText();
+        // check if writing plan is enabled
+        const plan = writingPlanInstance.getCurrentPlan();
+        if (plan) {
+            documentText = plan.outPutMarkdown();
+        }
+        const markdownPoints: MarkdownPoint[] = cabinetNodeInstance.parseMdStructure(documentText);
+
+        const documentUri = activeEditor.document.uri.toString();
+
+        this.postMessageToWebview(
+            {
+                command: CabinetCommandToWebView.provideCurrentMarkdownPoints,
+                contentTypes: [
+                    CabinetContentType.payload,
+                    CabinetContentType.uri,
+                ],
+                uri: documentUri,
+                payload: markdownPoints,
+            }
+        )
 
     }
 }

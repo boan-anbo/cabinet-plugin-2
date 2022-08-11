@@ -1,0 +1,35 @@
+<div class="flex items-center">
+
+  <div class="px-4">
+    <app-float-add-button [point]="point"></app-float-add-button>
+  </div>
+  <div
+    (dblclick)="vscodeControl.askVscodeToJump(point.line)"
+  >
+
+    <app-line-heading *ngIf="isHeading()" [point]="point"></app-line-heading>
+    <app-line-point *ngIf="isPoint()" [point]="point"></app-line-point>
+    <app-line-other *ngIf="isOther()" [point]="point"></app-line-other>
+  </div>
+
+  <div class="ml-2 opacity-10" [ngClass]="{'opacity-100': shouldShowParagraphs()}" *ngIf="hasParagraphs()">
+    <fa-icon [icon]="faBodyParagraph"></fa-icon>
+  </div>
+</div>
+<div class="flex items-baseline space-x-2"
+     *ngIf="shouldShowParagraphs()">
+
+
+  <div class="ml-1">
+    <app-float-add-button
+      [visible]="shouldShowParagraphs()"
+                          [addButtonType]="'addAll'"
+                          [point]="point">
+
+    </app-float-add-button>
+  </div>
+  <app-body-paragraphs
+    @fadeAnimation
+    [point]="point"
+  ></app-body-paragraphs>
+</div>
