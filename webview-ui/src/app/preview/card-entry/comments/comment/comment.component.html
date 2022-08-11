@@ -1,8 +1,17 @@
 <div class="flex space-x-4">
   <fa-icon [icon]="faComment">
-
   </fa-icon>
-  <div>
+  <div class="bg-yellow-400 flex space-x-2 items-center rounded-2xl px-4 py-2 drop-shadow">
+    <button
+      matTooltip="Add to text as a point"
+    (click)="addPoint(comment.text)"
+    >
+      <fa-icon class="opacity-5 hover:opacity-100 cursor-pointer"
+
+               [icon]="faAdd"></fa-icon>
+    </button>
+    <span class="">
     {{comment.text}}
+      </span>
   </div>
 </div>

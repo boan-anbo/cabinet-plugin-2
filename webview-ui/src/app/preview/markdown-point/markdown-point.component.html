@@ -1,12 +1,21 @@
-<div class="m-4 px-4 space-y-4">
+<div
+  (mouseenter)="preview.mouseOverPreviewLine.next(point.line)"
+  (mouseleave)="preview.mouseOverPreviewLine.next(null)"
+  inViewport
+  [inViewportOptions]="{threshold: 0}"
+  (inViewportAction)="onIntersection($event)"
+  [ngClass]="{'bg-yellow-100': !shouldHighlight, 'bg-yellow-200': isMouseOver(),'bg-yellow-400': shouldHighlight  }"
+  [id]="'line-' + point.line" class="m-4  space-y-4 rounded-2xl pr-4 py-3 drop-shadow-lg "
+  (click)="this.selectPoint(point)"
+>
   <div>
     <app-line-content [point]="point"></app-line-content>
   </div>
 
   <!--  Cards-->
-  <div>
+  <div *ngIf="point.cards.length > 0">
     <div *ngFor="let cardEntry of point.cards">
-      <app-card-entry [card]="cardEntry[1]"></app-card-entry>
+      <app-card-entry [parentPoint]="point" [cardLine]="cardEntry[0]" [card]="cardEntry[1]"></app-card-entry>
     </div>
   </div>
 </div>

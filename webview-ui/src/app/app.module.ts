@@ -8,11 +8,13 @@ import {HttpClientModule} from "@angular/common/http";
 import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatButtonModule} from "@angular/material/button";
-import {NgScrollbarModule} from "ngx-scrollbar";
 import {ScrollToModule} from "@nicky-lenaers/ngx-scroll-to";
+import { HealthCheckComponent } from './health-check/health-check.component';
+import { AppRoutingModule } from './app-routing.module';
+import {InViewportModule} from "ng-in-viewport";
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, HealthCheckComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -23,7 +25,11 @@ import {ScrollToModule} from "@nicky-lenaers/ngx-scroll-to";
     FontAwesomeModule,
     BrowserAnimationsModule,
     MatButtonModule,
-    ScrollToModule.forRoot()
+    ScrollToModule.forRoot(
+
+    ),
+    AppRoutingModule,
+    InViewportModule
   ],
   providers: [],
   bootstrap: [AppComponent],

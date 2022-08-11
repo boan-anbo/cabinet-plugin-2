@@ -1,21 +1,33 @@
 <div class="flex space-x-2 bg-amber-200 h-full">
 
 
-  <div class="w-9/12 overflow-y-scroll">
-
-    <div class="bg-blue-400">
-      Current Document Uri: {{this.vsCodeState.currentDocumentUri | async}}
+  <div class="w-8/12 overflow-y-scroll">
+<!--    Scroll anchor: top-->
+    <div  id="preview-top"></div>
+    <app-preview-status></app-preview-status>
+    <app-preview-control></app-preview-control>
+    <div *ngIf="this.preview.showRawMarkdownPoint">
+      <pre>
+        {{this.preview.markdownPoints | json}}
+      </pre>
     </div>
-    Test Message: {{this.preview.testMessage | async }}
-    <div class="" *ngFor="let markdownPoint of this.preview.testInput; let pointIndex = index">
+
+    <div
+      [ngClass]="{ 'pl-0': isLevel(markdownPoint, 1), 'pl-8': isLevel(markdownPoint,2) || isParentHeaderLevel(markdownPoint, 1), 'pl-12': isLevel(markdownPoint,3) || isParentHeaderLevel(markdownPoint, 2), 'pl-16': isLevel(markdownPoint,4) || isParentHeaderLevel(markdownPoint, 3), 'pl-20': isLevel(markdownPoint,5) || isParentHeaderLevel(markdownPoint, 4), 'pl-24': isLevel(markdownPoint, 6) || isParentHeaderLevel(markdownPoint, 5)}"
+      class="" *ngFor="let markdownPoint of this.preview.markdownPoints; let pointIndex = index">
       <app-markdown-point
-        [id]="pointIndex" [point]="markdownPoint"></app-markdown-point>
+
+        *ngIf="shouldShowPoint(markdownPoint)"
+        [pointIndex]="pointIndex"
+        [point]="markdownPoint"></app-markdown-point>
     </div>
-
+<!--    Scroll anchor: bottom-->
+    <div id="preview-bottom"></div>
   </div>
-  <div class="w-3/12 h-full overflow-y-scroll">
+  <div class="w-4/12 overflow-y-scroll" cdkScrollable>
 
-    <app-preview-nav [points]="this.preview.testInput"></app-preview-nav>
+
+    <app-preview-nav [points]="this.preview.markdownPoints"></app-preview-nav>
   </div>
 </div>
 <!--<pre>{{this.preview.testInput | json}}</pre>-->

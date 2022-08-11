@@ -1,31 +1,38 @@
 <div *ngIf="this.source">
-  <div class="flex space-x-4">
-    <div class="icon">
+  <div class="flex items-center space-x-4">
+    <button class="icon text-gray-500 hover:text-black"
+            matTooltip="'Toggle Full Text'"
+            (click)="toggleFullText($event)"
+    >
 
-      <fa-icon [icon]="faInfo"></fa-icon>
-    </div>
-    <div>
-      {{this.source.pageIndex + 1}}
-    </div>
-    <div>
-      {{this.source.title}}
-    </div>
-    <div>
+      <fa-icon [icon]="faFullText"></fa-icon>
+    </button>
+    <div class="w-11/12">
       <button
-        mat-mini-fab
-        class="full-text"
+        matTooltip="Open source file"
+        (click)="openFile()"
+        class="drop-shadow rounded-xl w-full bg-gray-100 px-4 py-1">
 
-
-        (click)="this.showSourceFullText = !this.showSourceFullText"
-      >
-        test
+        <div class="flex space-x-4">
+          <div>
+            {{this.source.pageIndex + 1}}
+          </div>
+          <div class="hover:underline truncate ">
+            <span class="truncate">
+            {{this.source.title}}
+              </span>
+          </div>
+        </div>
       </button>
     </div>
   </div>
 
-  <div *ngIf="this.showSourceFullText" class="flex justify-center">
-        <pre class="text-xs text-left rounded-2xl border-2 p-4">
-    {{this.source.text}} </pre>
+  <div
+
+    *ngIf="this.showSourceFullText" class="flex w-full">
+        <pre class="text-sm leading-4 text-left rounded-2xl whitespace-pre-wrap border-2 p-4">
+    {{fullTextWithoutBreaks}}
+        </pre>
   </div>
 </div>
 

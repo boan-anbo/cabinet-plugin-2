@@ -6,9 +6,6 @@ main {
   height: 100vh;
 }
 
-main > * {
-  margin: 1rem 0;
-}
 
 .icon {
   color: #bb1515 !important;

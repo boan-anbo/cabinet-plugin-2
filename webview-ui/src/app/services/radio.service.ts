@@ -1,14 +1,17 @@
 import {Injectable} from '@angular/core';
 import {NGXLogger} from "ngx-logger";
 import {
+  CabinetCommandToVsCode,
   CabinetCommandToWebView,
   CabinetContentType,
   CabinetMessageToVsCode,
-  CabinetMessageToWebView
+  CabinetMessageToWebView, MarkdownProviderPayload
 } from "../../../../src/shared-types";
 import {PreviewService} from "../preview/preview.service";
 import {vscode} from "../utilities/vscode";
 import {VscodeStateService} from "./vscode-state.service";
+import {PreviewState} from "../types/preview-state";
+import {PreviewStatesService} from "./preview-states.service";
 
 // Get access to the VS Code API from within the webview context
 
@@ -21,6 +24,7 @@ export class RadioService {
     private logger: NGXLogger,
     private preview: PreviewService,
     private vsCodeState: VscodeStateService,
+    private previewStates: PreviewStatesService
   ) {
   }
 
@@ -47,6 +51,26 @@ export class RadioService {
           this.logger.debug("Radio heard test");
           this.preview.testMessage.next(event.data.payload);
           break;
+        case CabinetCommandToWebView.provideTestReport:
+          const reportCommand = (message.text as CabinetCommandToVsCode)
+          this.vsCodeState.checkEntries[reportCommand] = true;
+          break;
+        case CabinetCommandToWebView.provideCurrentMarkdownPoints:
+
+          if ((payload as MarkdownProviderPayload).options.forceRefresh) {
+            this.previewStates.allowVsCodeToProvideNewMarkdownPoints.next(true);
+          }
+
+          this.previewStates.originalMarkdownText = payload.markdownText
+
+          if (message.uri) {
+            this.vsCodeState.currentDocumentUri.next(message.uri);
+            this.vsCodeState.previewState.next(PreviewState.DATA_READY);
+          }
+
+          this.preview.loadMarkdownPoints(payload as MarkdownProviderPayload);
+
+          break;
         case CabinetCommandToWebView.setDocumentUri:
           if (payload.uri) {
             this.vsCodeState.currentDocumentUri.next(payload.uri)
@@ -55,14 +79,19 @@ export class RadioService {
           }
 
           break;
-        case "updateUsedCards":
+        case CabinetCommandToWebView.updateUsedCards:
           alert("update used cards")
           break;
 
         case "goToLine":
+
+          if (!this.previewStates.allowVsCodeToScroll) {
+            return;
+          }
           console.log("received go to line request for", {
             message
           });
+
           if (message.uri) {
             // if document uri is provided, check if it's the same as the current document
             if (message.uri !== this.vsCodeState.currentDocumentUri.getValue()) {
@@ -70,7 +99,9 @@ export class RadioService {
               return;
             }
           }
-          alert("jump to line")
+          if (message.lineNumber) {
+            this.vsCodeState.currentActiveLine.next(message.lineNumber);
+          }
           break;
       }
     });

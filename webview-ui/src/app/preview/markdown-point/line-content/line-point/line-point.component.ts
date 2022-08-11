@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {MarkdownPoint} from "cabinet-node";
-import {faBullseye} from "@fortawesome/free-solid-svg-icons";
+import {LineType, MarkdownPoint} from "cabinet-node";
+import {faLightbulb} from "@fortawesome/free-regular-svg-icons";
+import {faCircleChevronDown} from "@fortawesome/free-solid-svg-icons";
+
 @Component({
   selector: 'app-line-point',
   templateUrl: './line-point.component.html',
@@ -8,11 +10,15 @@ import {faBullseye} from "@fortawesome/free-solid-svg-icons";
 })
 export class LinePointComponent implements OnInit {
 
-  faPoint = faBullseye
+  faPoint = faLightbulb
   // @ts-ignore
   @Input() point:MarkdownPoint
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  isNumberPoint() {
+    return this.point.lineType === LineType.NUMBER_POINT
   }
 }
